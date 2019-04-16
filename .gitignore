@@ -1,2 +1,5 @@
-/.settings/
-/.project
+**/.settings/
+**/.project
+**/.classpath
+**/META-INF/maven/
+**/target/
