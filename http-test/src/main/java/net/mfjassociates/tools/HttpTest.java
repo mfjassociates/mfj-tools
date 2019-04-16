@@ -3,7 +3,7 @@ package net.mfjassociates.tools;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -23,8 +23,12 @@ public class HttpTest {
 
 	}
 	@Bean
-	public CommandLineRunner clrunner(RestTemplate aRestTemplate) {
+	public ApplicationRunner clrunner(RestTemplate aRestTemplate) {
 		return args -> {
+			System.out.println("# OptionArgs: "+args.getOptionNames().size());
+			args.getOptionNames().forEach(optionName -> {System.out.println(optionName+"="+args.getOptionValues(optionName));});
+			System.out.println("# NonOptionArgs: "+args.getNonOptionArgs().size());
+			args.getNonOptionArgs().forEach(optionArg -> {System.out.println(optionArg+"="+args.getOptionValues(optionArg));});
 			ResponseEntity<String> resp=aRestTemplate.getForEntity("https://www.google.ca", String.class);
 			System.out.println("size="+resp.getBody().length());
 		};
