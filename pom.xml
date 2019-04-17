@@ -11,5 +11,6 @@
   <packaging>pom</packaging>
   <modules>
   	<module>http-test</module>
+  	<module>apache-httpclient-resttemplate</module>
   </modules>
 </project>
