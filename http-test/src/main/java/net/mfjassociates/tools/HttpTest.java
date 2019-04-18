@@ -12,12 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import ch.qos.logback.classic.Level;
+import net.mfjassociates.tools.config.HttpClientConfig;
+import net.mfjassociates.tools.config.RestTemplateConfig;
 
 @SpringBootApplication
 public class HttpTest {
@@ -39,8 +42,9 @@ public class HttpTest {
 	private RestTemplate restTemplate=null;
 
 	public static void main(String[] args) {
-		SpringApplication.run(HttpTest.class, args);
-
+		SpringApplication app = new SpringApplication(HttpTest.class, HttpClientConfig.class, RestTemplateConfig.class);
+		ConfigurableApplicationContext context = app.run(args);
+		context.close();
 	}
 	@Bean
 	public ApplicationRunner clrunner() {
@@ -86,12 +90,12 @@ public class HttpTest {
 		logger.info("size="+resp.getBody().length());
 	}
 	
-	@Bean
+//	@Bean
 	public RestTemplate restTemplate(HttpComponentsClientHttpRequestFactory hcchrf) {
 		return new RestTemplate(hcchrf);
 	}
 	
-	@Bean
+//	@Bean
 	public CloseableHttpClient chc() {
 		RequestConfig rConfig = RequestConfig.custom()
 				.setConnectionRequestTimeout(REQUEST_TIMEOUT)
@@ -101,7 +105,7 @@ public class HttpTest {
 				.setDefaultRequestConfig(rConfig)
 				.build();
 	}
-	@Bean
+//	@Bean
 	public HttpComponentsClientHttpRequestFactory chrf(CloseableHttpClient httpClient) {
 		HttpComponentsClientHttpRequestFactory chrf = new HttpComponentsClientHttpRequestFactory();
 		chrf.setHttpClient(httpClient);

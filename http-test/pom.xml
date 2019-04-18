@@ -19,6 +19,11 @@
   		<groupId>org.apache.httpcomponents</groupId>
   		<artifactId>httpclient</artifactId>
   	</dependency>
+  	<dependency>
+  		<groupId>net.mfjassociates.tools</groupId>
+  		<artifactId>apache-httpclient-resttemplate</artifactId>
+  		<version>1.0.0</version>
+  	</dependency>
   </dependencies>
   <properties>
   	<java.version>1.8</java.version>
