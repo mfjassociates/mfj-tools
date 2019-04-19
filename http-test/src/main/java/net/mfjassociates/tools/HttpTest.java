@@ -61,6 +61,7 @@ public class HttpTest {
 	@Bean
 	public ApplicationRunner applrunner(ApplicationArguments theArgs, ConfigurableEnvironment env) {
 		return args -> {
+			processArguments(theArgs, null);
 			args.getNonOptionArgs().forEach(this::urlHandler);
 
 		};
@@ -74,43 +75,48 @@ public class HttpTest {
 	 * the application-{profile}.properties can be used to define the proxy property
 	 * configuration
 	 * @param args
-	 * @param sab SpringApplicationBuilder used to build the application
+	 * @param sab SpringApplicationBuilder used to build the application. if it is null handle all
+	 * arguments not related to the environment.  If it is not null, only process the environment
+	 * related arguments.
 	 * @return the SpringApplicationBuilder
 	 */
 	private static SpringApplicationBuilder processArguments(ApplicationArguments args, SpringApplicationBuilder sab) {
-		LOGGING_MODE loggingMode=defaultLoggingMode;
-		long mutually=Stream.of(args.containsOption(SILENT_ARGUMENT),
-				args.containsOption(HEADERS_ARGUMENT),
-				args.containsOption(WIRE_ARGUMENT))
-				.filter(b -> b).count();
-		if (mutually>1) throw new IllegalArgumentException("Only one of "+
-				Stream.of(SILENT_ARGUMENT, HEADERS_ARGUMENT, WIRE_ARGUMENT)
-				.map(a -> "--"+a)
-				.collect(Collectors.toList())
-				.toString()+" can be specified");
-		if (mutually==1) {
-			if (args.containsOption(SILENT_ARGUMENT)) loggingMode=LOGGING_MODE.silent;
-			if (args.containsOption(WIRE_ARGUMENT)) loggingMode=LOGGING_MODE.wire;
-			if (args.containsOption(HEADERS_ARGUMENT)) loggingMode=LOGGING_MODE.headers;
-		}
-		switch (loggingMode) {
-		case headers:
-			// do nothing, application.properties has the right defaults
-			break;
-		case silent:
-			wireLogger.setLevel(Level.INFO);
-			httpLogger.setLevel(Level.INFO);
-			break;
-		case wire:
-			wireLogger.setLevel(Level.DEBUG);
-			httpLogger.setLevel(Level.DEBUG);
-			break;
+		if (sab==null) { // process non env args
+			LOGGING_MODE loggingMode=defaultLoggingMode;
+			long mutually=Stream.of(args.containsOption(SILENT_ARGUMENT),
+					args.containsOption(HEADERS_ARGUMENT),
+					args.containsOption(WIRE_ARGUMENT))
+					.filter(b -> b).count();
+			if (mutually>1) throw new IllegalArgumentException("Only one of "+
+					Stream.of(SILENT_ARGUMENT, HEADERS_ARGUMENT, WIRE_ARGUMENT)
+					.map(a -> "--"+a)
+					.collect(Collectors.toList())
+					.toString()+" can be specified");
+			if (mutually==1) {
+				if (args.containsOption(SILENT_ARGUMENT)) loggingMode=LOGGING_MODE.silent;
+				if (args.containsOption(WIRE_ARGUMENT)) loggingMode=LOGGING_MODE.wire;
+				if (args.containsOption(HEADERS_ARGUMENT)) loggingMode=LOGGING_MODE.headers;
+			}
+			switch (loggingMode) {
+			case headers:
+				// do nothing, application.properties has the right defaults
+				break;
+			case silent:
+				wireLogger.setLevel(Level.INFO);
+				httpLogger.setLevel(Level.INFO);
+				break;
+			case wire:
+				wireLogger.setLevel(Level.DEBUG);
+				httpLogger.setLevel(Level.DEBUG);
+				break;
 
-		}
-		if (args.containsOption(ENV_ARGUMENT)) {
-			List<String> theEnv=args.getOptionValues(ENV_ARGUMENT);
-			if (theEnv==null || theEnv.size()!=1) throw new IllegalArgumentException("You must specify exactly one value for the --env argument");
-			sab.profiles(theEnv.get(0)); // add to active profiles
+			}
+		} else { // process env related arguments
+			if (args.containsOption(ENV_ARGUMENT)) {
+				List<String> theEnv=args.getOptionValues(ENV_ARGUMENT);
+				if (theEnv==null || theEnv.size()!=1) throw new IllegalArgumentException("You must specify exactly one value for the --env argument");
+				sab.profiles(theEnv.get(0)); // add to active profiles
+			}
 		}
 		return sab;
 	}
