@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -41,19 +43,23 @@ public class HttpTest {
 	private static enum LOGGING_MODE {
 		silent, headers, wire;
 	}
-	private LOGGING_MODE defaultLoggingMode = LOGGING_MODE.headers;
+	private static LOGGING_MODE defaultLoggingMode = LOGGING_MODE.headers;
 	@Autowired
 	private RestTemplate restTemplate=null;
 
 	public static void main(String[] args) {
-		SpringApplication app = new SpringApplication(HttpTest.class, HttpClientConfig.class, RestTemplateConfig.class);
+		SpringApplication app = null;
+		// this will be redone later but it cannot be helped because I need access before creating the context
+		// so that the application-{profile}.properties are used to build the context
+		ApplicationArguments aArgs=new DefaultApplicationArguments(args);
+		SpringApplicationBuilder sab=new SpringApplicationBuilder(HttpTest.class, HttpClientConfig.class, RestTemplateConfig.class);
+		app=processArguments(aArgs, sab).build();
 		ConfigurableApplicationContext context = app.run(args);
 		context.close();
 	}
 	
 	@Bean
 	public ApplicationRunner applrunner(ApplicationArguments theArgs, ConfigurableEnvironment env) {
-		processArguments(theArgs, env);
 		return args -> {
 			args.getNonOptionArgs().forEach(this::urlHandler);
 
@@ -68,9 +74,10 @@ public class HttpTest {
 	 * the application-{profile}.properties can be used to define the proxy property
 	 * configuration
 	 * @param args
-	 * @param env TODO
+	 * @param sab SpringApplicationBuilder used to build the application
+	 * @return the SpringApplicationBuilder
 	 */
-	private void processArguments(ApplicationArguments args, ConfigurableEnvironment env) {
+	private static SpringApplicationBuilder processArguments(ApplicationArguments args, SpringApplicationBuilder sab) {
 		LOGGING_MODE loggingMode=defaultLoggingMode;
 		long mutually=Stream.of(args.containsOption(SILENT_ARGUMENT),
 				args.containsOption(HEADERS_ARGUMENT),
@@ -103,8 +110,9 @@ public class HttpTest {
 		if (args.containsOption(ENV_ARGUMENT)) {
 			List<String> theEnv=args.getOptionValues(ENV_ARGUMENT);
 			if (theEnv==null || theEnv.size()!=1) throw new IllegalArgumentException("You must specify exactly one value for the --env argument");
-			env.addActiveProfile(theEnv.get(0)); // add to active profiles
+			sab.profiles(theEnv.get(0)); // add to active profiles
 		}
+		return sab;
 	}
 	
 	private void urlHandler(String url) {
