@@ -24,8 +24,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import ch.qos.logback.classic.Level;
-import net.mfjassociates.tools.config.HttpClientConfig;
-import net.mfjassociates.tools.config.RestTemplateConfig;
 
 @SpringBootApplication
 public class HttpTest {
@@ -52,7 +50,7 @@ public class HttpTest {
 		// this will be redone later but it cannot be helped because I need access before creating the context
 		// so that the application-{profile}.properties are used to build the context
 		ApplicationArguments aArgs=new DefaultApplicationArguments(args);
-		SpringApplicationBuilder sab=new SpringApplicationBuilder(HttpTest.class, HttpClientConfig.class, RestTemplateConfig.class);
+		SpringApplicationBuilder sab=new SpringApplicationBuilder(HttpTest.class);
 		app=processArguments(aArgs, sab).build();
 		ConfigurableApplicationContext context = app.run(args);
 		context.close();
