@@ -25,6 +25,20 @@ import org.springframework.web.client.RestTemplate;
 
 import ch.qos.logback.classic.Level;
 
+/**
+ * Class to test HTTP transactions using Spring RestTemplate and
+ * Apache httpcomponents httpclient.
+ * <p>
+ * This will use the two configuration classes for RestTemplate and
+ * httpclient in the net.mfjassociates.tools.config package.
+ * <p>
+ * If you want to write your own http client java class and you are
+ * not using the net.mfjassociates.tools package then you should use
+ * a @ComponentScan annotation for the net.mfjassociates.tools.config
+ * package.
+ * @author Mario Jauvin
+ *
+ */
 @SpringBootApplication
 public class HttpTest {
 
