@@ -12,5 +12,6 @@
   <modules>
   	<module>http-test</module>
   	<module>apache-httpclient-resttemplate</module>
+  	<module>java-chest</module>
   </modules>
 </project>
