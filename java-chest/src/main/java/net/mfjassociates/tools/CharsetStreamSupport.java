@@ -49,6 +49,49 @@ public class CharsetStreamSupport {
 		if (eoi) csDecoder.get().flush(cb);
 		return res;
 	}
+	/**
+	 * This is from this stackoverflow:
+	 * https://stackoverflow.com/a/29560129
+	 * This shows how to call decode with false as end of input argument
+	 * @param args
+	 */
+	public static void main2(String[] args) {
+		final String pound="€";
+		final Charset charset=Charset.forName("UTF-8");
+		final byte[] tab = pound.getBytes(charset); //char €
+		final CharsetDecoder dec = charset.newDecoder();
+		final int charsLen=(int)(dec.maxCharsPerByte() * (double)tab.length);
+		final CharBuffer chars = CharBuffer.allocate(charsLen);
+		logger.info("byte[]={}, chars length={} maxCharsPerByte={}", toString(toHex(tab)), charsLen, dec.maxCharsPerByte());
+
+		final ByteBuffer buffer = ByteBuffer.allocate(10);
+
+		for (int i = 0; i < tab.length; i++) {
+		    // Add the next byte to the buffer
+		    buffer.put(tab[i]);
+
+		    // Remember the current position
+		    final int pos = buffer.position();
+
+		    // Try to decode
+		    buffer.flip();
+		    final CoderResult result = dec.decode(buffer, chars, i == (tab.length-1));
+		    logger.info("buffer remaining={} pos(before/now)={}/{} limit={} capacity={} result={}",
+		    		buffer.remaining(), pos, buffer.position(),
+		    		buffer.limit(), buffer.capacity(), result);
+
+		    if (result.isUnderflow()) {
+		        // Underflow, prepare the buffer for more writing
+		        buffer.limit(buffer.capacity());
+		        buffer.position(pos);
+		    }
+		}
+
+		dec.flush(chars);
+		chars.flip();
+		logger.info("decoded=\"{}\"", chars.toString());
+		
+	}
 	
 	public float averageCharsPerByte() {
 		return csDecoder.get().averageCharsPerByte();
@@ -74,7 +117,7 @@ public class CharsetStreamSupport {
 		}
 		logger.info("CharBuffer size={}, byte[] size/limit={}/{}, ByteBuffer remaining/position={}/{}, result={}", charSize, byteSize, limit, bb.remaining(), 
 				bb.position(), res);
-		limit+=1;
+		limit=byteSize;
 		cb=CharBuffer.allocate(charSize);
 		res=css.decode(cb, bb, limit==byteSize);
 		if (cb.hasArray()) {
