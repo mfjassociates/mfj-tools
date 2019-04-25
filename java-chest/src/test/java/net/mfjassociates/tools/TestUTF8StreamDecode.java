@@ -23,7 +23,8 @@ class TestUTF8StreamDecode {
 	
 	@BeforeAll
 	public static void createBuffers() {
-		css = new CharsetStreamSupport("UTF-8");
+		css = new CharsetStreamSupport();
+		css.initialize("UTF-8", 20);
 		utf8bytes=new String("nç").getBytes(css.getCharset());
 
 	}
@@ -48,7 +49,7 @@ class TestUTF8StreamDecode {
 		CharBuffer cb=CharBuffer.allocate(size);
 		ByteBuffer bb=ByteBuffer.wrap(utf8bytes, position, limit);
 		csDecoder.reset();
-		CoderResult res = css.decode(cb, bb, eoi);
+		CoderResult res = css.decode2(bb, cb, eoi);
 		logger.info("CharBuffer size={}, byte[] limit={}, ByteBuffer remaining={}", size, limit, bb.remaining());
 		csDecoder.decode(bb, cb, true);
 		csDecoder.flush(cb);

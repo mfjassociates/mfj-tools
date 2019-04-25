@@ -35,39 +35,108 @@ import org.slf4j.LoggerFactory;
 public class CharsetStreamSupport {
 
 	public static final Logger logger=LoggerFactory.getLogger(CharsetStreamSupport.class);
-	private final String charsetName;
-	private ThreadLocal<CharsetDecoder> csDecoder=new ThreadLocal<CharsetDecoder>() {
-		@Override protected CharsetDecoder initialValue() {
-			return charset.newDecoder();
-		}
-	};
-	private final Charset charset;
-	public Charset getCharset() {
-		return charset;
+	private final ThreadLocal<String> charsetName=new ThreadLocal<String>();
+	private ThreadLocal<CharsetDecoder> csDecoder=new ThreadLocal<CharsetDecoder>();
+	private ThreadLocal<ByteBuffer> bbinternal=new ThreadLocal<ByteBuffer>();
+	private final ThreadLocal<Charset> charset=new ThreadLocal<Charset>();
+	private final ThreadLocal<CoderResult> result=new ThreadLocal<CoderResult>();
+
+	public CoderResult getCoderReult() {
+		return result.get();
 	}
-	private final ThreadLocal<Boolean> initialized=new ThreadLocal<Boolean>() {
+	public Charset getCharset() {
+		return charset.get();
+	}
+	private final ThreadLocal<Boolean> decoderInitialized=new ThreadLocal<Boolean>() {
 		@Override protected Boolean initialValue() {
 			return false;
 		}
 	};
-	
-	public CharsetStreamSupport(String aCharsetName) {
-		this.charsetName=aCharsetName;
-		charset=Charset.forName(charsetName);
+	public void initialize(String aCharsetName, int capacity) {
+		charsetName.set(aCharsetName);
+		bbinternal.set(ByteBuffer.allocate(capacity));
+		charset.set(Charset.forName(charsetName.get()));
+		csDecoder.set(charset.get().newDecoder());
 	}
-	public CoderResult decode(CharBuffer cb, ByteBuffer bb, boolean eoi) {
-		if (!initialized.get()) {
+	
+	public CharsetStreamSupport() {
+	}
+	public CoderResult decode2(ByteBuffer bb, CharBuffer cb, boolean eoi) {
+		if (!decoderInitialized.get()) {
 			csDecoder.get().reset();
-			initialized.set(true);
+			decoderInitialized.set(true);
 		}
 		CoderResult res = csDecoder.get().decode(bb, cb, eoi);
 		if (eoi) {
 			csDecoder.get().flush(cb);
 			cb.flip();
-			initialized.set(false);
+			decoderInitialized.set(false);
 		}
 		return res;
 	}
+	public CharBuffer decode(byte[] bytes, boolean eoi) {
+		return decode(ByteBuffer.wrap(bytes), eoi);
+	}
+	public CharBuffer decode(ByteBuffer inbb, boolean eoi) {
+		if (bbinternal.get()==null) throw new IllegalStateException("You must initialize the CharsetStreamSupport before calling decode2");
+		ByteBuffer bb = bbinternal.get();
+		bb.put(inbb);
+		bb.flip();
+		CharBuffer cb=CharBuffer.allocate((int)(bb.capacity()*averageCharsPerByte()));
+		
+		result.set(decode2(bb, cb, eoi));
+		if (!eoi) cb.flip();
+		bb.compact();
+		return cb;
+	}
+	public static void main7(String[] args) {
+		CharsetStreamSupport css = new CharsetStreamSupport();
+		css.initialize("UTF-8", 10);
+		byte[] utf8bytes=new String("élèves").getBytes(css.getCharset());
+		for (int ix = 0; ix < utf8bytes.length+1; ix++) {
+			byte[] part1=Arrays.copyOf(utf8bytes, ix);
+			byte[] part2=Arrays.copyOfRange(utf8bytes, ix, utf8bytes.length);
+			CharBuffer cb;
+			cb = css.decode(part1, false);
+			CoderResult res1=css.getCoderReult();
+			String decoded1=cb.toString();
+			cb = css.decode(part2, true);
+			System.out.println(MessageFormat.format("decoded={0}/{1} result={2}/{3}", decoded1,cb.toString(),res1, css.getCoderReult()));
+		}
+	}
+	public static void main6(String[] args) {
+			CharsetStreamSupport css = new CharsetStreamSupport();
+			css.initialize("UTF-8", 10);
+			byte[] utf8bytes=new String("élèves").getBytes(css.getCharset());
+			byte[] part1=Arrays.copyOf(utf8bytes, 4);
+			byte[] part2=Arrays.copyOfRange(utf8bytes, 4, utf8bytes.length);
+			CoderResult res=null;
+			System.out.println("part1="+toString(toHex(part1))+" part2="+toString(toHex(part2)));
+			System.out.println("utf8bytes="+toString(toHex(utf8bytes)));
+			
+			ByteBuffer bb=ByteBuffer.allocate(utf8bytes.length);
+			CharBuffer cb=CharBuffer.allocate((int)(bb.capacity()*css.averageCharsPerByte()));
+			
+			bb.put(part1);
+			bb.flip();
+			res=css.decode2(bb, cb, false);
+			
+			cb.flip();
+			System.out.println("decoded="+cb.toString());
+			cb.clear();
+	
+			
+	//		System.out.println("before compact "+extendedDisplayBuffer(bb, "bb"));
+			bb.compact();
+	//		System.out.println("after compact "+extendedDisplayBuffer(bb, "bb"));
+			
+			bb.put(part2);
+			bb.flip();
+			
+			res=css.decode2(bb, cb, true);
+			System.out.println("decoded="+cb.toString());
+			
+		}
 	/**
 	 * main3
 	 * @param args
@@ -162,11 +231,30 @@ public class CharsetStreamSupport {
 		
 	}
 	private static String displayBuffer(Buffer aBuffer, String name) {
-		return MessageFormat.format("\"{0}\",{1},{2},{3},{4}", name, aBuffer.position(), aBuffer.remaining(), aBuffer.limit(), aBuffer.capacity());
+		return MessageFormat.format("\"{0} p/r/l/c\",{1},{2},{3},{4}", name, aBuffer.position(), aBuffer.remaining(), aBuffer.limit(), aBuffer.capacity());
 	}
 	
 	private static String csvDisplayBuffer(Buffer aBuffer) {
 		return MessageFormat.format("{0},{1},{2},{3}", aBuffer.position(), aBuffer.remaining(), aBuffer.limit(), aBuffer.capacity());
+	}
+	
+	private static String extendedDisplayBuffer(Buffer aBuffer, String name) {
+		StringBuffer sb=new StringBuffer(3*aBuffer.capacity());
+		sb.append(name).append(": ");
+		if (aBuffer instanceof CharBuffer) {
+			CharBuffer cb=(CharBuffer)aBuffer;
+			sb.append(Arrays.toString(cb.array()));
+		} else {
+			ByteBuffer bb=(ByteBuffer)aBuffer;
+			sb.append(toString(toHex(bb.array())));
+		}
+		sb.append("\n");
+		sb.append("position=").append(aBuffer.position())
+			.append(" remaining=").append(aBuffer.remaining())
+			.append(" limit=").append(aBuffer.limit())
+			.append(" capacity=").append(aBuffer.capacity())
+			.append("\n");			
+		return sb.toString();
 	}
 	
 	public float averageCharsPerByte() {
@@ -212,7 +300,8 @@ public class CharsetStreamSupport {
 		int charSize;
 		int byteSize;
 		
-		CharsetStreamSupport css = new CharsetStreamSupport("UTF-8");
+		CharsetStreamSupport css = new CharsetStreamSupport();
+		css.initialize("UTF-8", 10);
 		byte[] utf8bytes=new String("élèves").getBytes(css.getCharset());
 		byteSize=utf8bytes.length;
 		logger.info(toString(toHex(utf8bytes)));
@@ -228,7 +317,7 @@ public class CharsetStreamSupport {
 		
 		bb.limit(limit);
 		
-		CoderResult res = css.decode(cb, bb, limit==byteSize);
+		CoderResult res = css.decode2(bb, cb, limit==byteSize);
 	    logger.info(FORMAT2, 1, "after decode1", displayBuffer(bb, "bb"),displayBuffer(cb, "cb"));
 		if (cb.hasArray()) {
 			logger.info("Decode string={}, eoi={}, result={}", displayBufferContent(cb), limit==byteSize, res);
@@ -242,7 +331,7 @@ public class CharsetStreamSupport {
 //		cb.rewind();
 		
 	    logger.info(FORMAT2, 2, "before decode2", displayBuffer(bb, "bb"),displayBuffer(cb, "cb"));
-		res=css.decode(cb, bb, limit==byteSize);
+		res=css.decode2(bb, cb, limit==byteSize);
 	    logger.info(FORMAT2, 2, "after decode2", displayBuffer(bb, "bb"),displayBuffer(cb, "cb"));
 		if (cb.hasArray()) {
 			logger.info("Decode string={}, eoi={}, result={}", displayBufferContent(cb), limit==byteSize, res);
@@ -254,7 +343,8 @@ public class CharsetStreamSupport {
 	public static void main5(String[] args) {
 		int byteSize;
 		
-		CharsetStreamSupport css = new CharsetStreamSupport("UTF-8");
+		CharsetStreamSupport css = new CharsetStreamSupport();
+		css.initialize("UTF-8", 10);
 		byte[] utf8bytes=new String("élèves").getBytes(css.getCharset());
 		byteSize=utf8bytes.length;
 
@@ -263,16 +353,16 @@ public class CharsetStreamSupport {
 		
 		// step 1
 		bb.limit(4);		
-		CoderResult res = css.decode(cb, bb, bb.limit()==byteSize);
+		CoderResult res = css.decode2(bb, cb, bb.limit()==byteSize);
 
 		// step 2
 		bb.limit(byteSize);
-		res=css.decode(cb, bb, bb.limit()==byteSize);
+		res=css.decode2(bb, cb, bb.limit()==byteSize);
 
 	}
-	
 	public static void main4(String[] args) throws IOException {
-		CharsetStreamSupport css = new CharsetStreamSupport("UTF-8");
+		CharsetStreamSupport css = new CharsetStreamSupport();
+		css.initialize("UTF-8", 10);
 		byte[] utf8bytes=new String("élèves").getBytes(css.getCharset());
 		int byteSize=utf8bytes.length;
 		logger.info(toString(toHex(utf8bytes)));
@@ -285,9 +375,7 @@ public class CharsetStreamSupport {
 		
 	}
 	public static void main(String[] args) {
-		ByteBuffer bb=ByteBuffer.allocate(128);
-		System.out.println(displayBuffer(bb, "bb"));
-//		main5(args);
+		main7(args);
 	}
 	/**​
 	 * Convert array of bytes to array of hexadecimal representation of byte.​
