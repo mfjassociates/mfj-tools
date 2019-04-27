@@ -1,6 +1,11 @@
 package net.mfjassociates.tools;
 
+import static net.mfjassociates.tools.util.SwitchLoggingLevel.switchLevel;
+
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -9,6 +14,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -22,8 +28,6 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-
-import ch.qos.logback.classic.Level;
 
 /**
  * Class to test HTTP transactions using Spring RestTemplate and
@@ -46,8 +50,9 @@ public class HttpTest {
 	private static final int CONNECT_TIMEOUT = 30000;
 	private static final int SOCKET_TIMEOUT = 60000;
 	private static final Logger logger=LoggerFactory.getLogger(HttpTest.class);
-	private static final ch.qos.logback.classic.Logger httpLogger=(ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http");
-	private static final ch.qos.logback.classic.Logger wireLogger=(ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http.wire");
+	private static final Logger httpLogger=LoggerFactory.getLogger("org.apache.http");
+	private static final Logger springWebClient=LoggerFactory.getLogger("org.springframework.web.client");
+	private static final Logger wireLogger=LoggerFactory.getLogger("org.apache.http.wire");
 	private static final String SILENT_ARGUMENT = "silent";
 	private static final String HEADERS_ARGUMENT = "headers";
 	private static final String WIRE_ARGUMENT = "wire";
@@ -78,6 +83,10 @@ public class HttpTest {
 
 		};
 	}
+	
+	private static final Set<String> validArgs=Stream.of(
+			SILENT_ARGUMENT, HEADERS_ARGUMENT, WIRE_ARGUMENT, ENV_ARGUMENT
+			).collect(Collectors.toSet());
 
 	/**
 	 * This method will process the arguments and create the resulting defaults
@@ -99,27 +108,27 @@ public class HttpTest {
 					args.containsOption(HEADERS_ARGUMENT),
 					args.containsOption(WIRE_ARGUMENT))
 					.filter(b -> b).count();
-			if (mutually>1) throw new IllegalArgumentException("Only one of "+
-					Stream.of(SILENT_ARGUMENT, HEADERS_ARGUMENT, WIRE_ARGUMENT)
-					.map(a -> "--"+a)
-					.collect(Collectors.toList())
-					.toString()+" can be specified");
+			if (mutually>1) throw new IllegalArgumentException("Only one of "+optionsList(SILENT_ARGUMENT, HEADERS_ARGUMENT, WIRE_ARGUMENT)+" can be specified");
 			if (mutually==1) {
 				if (args.containsOption(SILENT_ARGUMENT)) loggingMode=LOGGING_MODE.silent;
 				if (args.containsOption(WIRE_ARGUMENT)) loggingMode=LOGGING_MODE.wire;
 				if (args.containsOption(HEADERS_ARGUMENT)) loggingMode=LOGGING_MODE.headers;
 			}
+			String badArgs = optionsList(args.getOptionNames().stream().filter(name -> !validArgs.contains(name)));
+			if (!badArgs.isEmpty()) throw new IllegalArgumentException("The following option(s) are invalid: "+badArgs);
 			switch (loggingMode) {
 			case headers:
 				// do nothing, application.properties has the right defaults
 				break;
 			case silent:
-				wireLogger.setLevel(Level.INFO);
-				httpLogger.setLevel(Level.INFO);
+				switchLevel(Level.INFO, wireLogger);
+				switchLevel(Level.INFO, httpLogger);
+				switchLevel(Level.INFO, springWebClient);
 				break;
 			case wire:
-				wireLogger.setLevel(Level.DEBUG);
-				httpLogger.setLevel(Level.DEBUG);
+				switchLevel(Level.DEBUG, wireLogger);
+				switchLevel(Level.DEBUG, httpLogger);
+				switchLevel(Level.DEBUG, springWebClient);
 				break;
 
 			}
@@ -131,6 +140,15 @@ public class HttpTest {
 			}
 		}
 		return sab;
+	}
+	
+	private static String optionsList(String ...args) {
+		return optionsList(Stream.of(args));
+	}
+	private static String optionsList(Stream<String> ss) {
+		Set<String> resultSet = ss.map(a -> "--"+a).collect(Collectors.toSet());
+		if (resultSet.isEmpty()) return "";
+		else return resultSet.toString();
 	}
 	
 	private void urlHandler(String url) {
