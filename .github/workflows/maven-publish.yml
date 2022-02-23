@@ -26,9 +26,9 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
-      run: mvn -B -DskipTests package --file pom.xml
+      run: mvn -B -DskipTests --no-transfer-progress package --file pom.xml
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn -B -DskipTests deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn -B -DskipTests --no-transfer-progress deploy -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
