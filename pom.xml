@@ -21,4 +21,31 @@
     <sha1>0</sha1>
     <changelist>-SNAPSHOT</changelist>
   </properties>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Mario Jauvin</name>
+      <email>mfj (at) earthling.net</email>
+      <organization>MFJ Associates</organization>
+      <organizationUrl>https://github.com/orgs/mfjassociates/people/marioja</organizationUrl>
+    </developer>
+  </developers>
+  <organization>
+    <name>MFJ Associates</name>
+    <url>www.mfjassociates.net</url>
+  </organization>
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <name>Central Repository OSSRH</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+  <url>https://github.com/mfjassociates/mfj-tools</url>
 </project>
