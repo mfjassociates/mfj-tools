@@ -78,7 +78,7 @@ public class CharsetStreamSupport {
 		return decode(ByteBuffer.wrap(bytes), eoi);
 	}
 	/**
-	 * Will call {@link #decode2()} with a CharBuffer allocated to
+	 * Will call decode2 with a CharBuffer allocated to
 	 * approximately the right size for receiving the decoded characters.
 	 * 
 	 * @param inbb - The input byte buffer to decode
