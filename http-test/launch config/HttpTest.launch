@@ -8,8 +8,10 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="${workspace_loc:/http-test}/out.log"/>
 <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.mfjassociates.tools.HttpTest"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--wire https://owa.mfjassociates.net/owa/auth/logon.aspx?url=https://owa.mfjassociates.net/OWA/&amp;reason=0"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="http-test"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dxxspring.profiles.active=ntlm"/>
 </launchConfiguration>

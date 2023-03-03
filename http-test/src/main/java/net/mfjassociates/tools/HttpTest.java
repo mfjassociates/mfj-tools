@@ -2,8 +2,6 @@ package net.mfjassociates.tools;
 
 import static net.mfjassociates.tools.util.SwitchLoggingLevel.switchLevel;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,9 +10,9 @@ import java.util.stream.Stream;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -49,10 +47,10 @@ public class HttpTest {
 	private static final int REQUEST_TIMEOUT = 30000;
 	private static final int CONNECT_TIMEOUT = 30000;
 	private static final int SOCKET_TIMEOUT = 60000;
-	private static final Logger logger=LoggerFactory.getLogger(HttpTest.class);
-	private static final Logger httpLogger=LoggerFactory.getLogger("org.apache.http");
-	private static final Logger springWebClient=LoggerFactory.getLogger("org.springframework.web.client");
-	private static final Logger wireLogger=LoggerFactory.getLogger("org.apache.http.wire");
+	private static final Logger logger=LogManager.getLogger(HttpTest.class);
+	private static final Logger httpLogger=LogManager.getLogger("org.apache.http");
+	private static final Logger springWebClient=LogManager.getLogger("org.springframework.web.client");
+	private static final Logger wireLogger=LogManager.getLogger("org.apache.http.wire");
 	private static final String SILENT_ARGUMENT = "silent";
 	private static final String HEADERS_ARGUMENT = "headers";
 	private static final String WIRE_ARGUMENT = "wire";
