@@ -178,7 +178,7 @@ public class CharsetStreamSupport {
 	 * https://stackoverflow.com/a/29560129
 	 * This shows how to call decode with false as end of input argument
 	 */
-	public static void main2(String[] args) throws IOException {
+	private static void main2(String[] args) throws IOException {
 		final String pound="€1€2€3";
 		final Charset charset=Charset.forName("ISO-8859-1");
 		final byte[] tab = pound.getBytes(charset); //char €
@@ -294,7 +294,7 @@ public class CharsetStreamSupport {
 	 * Step 1 has eoi false, step 2 has eoi true.
 	 * 
 	 */
-	public static void main1(String[] args) {
+	private static void main1(String[] args) {
 		int limit;
 		int charSize;
 		int byteSize;
@@ -339,7 +339,7 @@ public class CharsetStreamSupport {
 //				bb.position(), res);
 
 	}
-	public static void main5(String[] args) {
+	private static void main5(String[] args) {
 		int byteSize;
 		
 		CharsetStreamSupport css = new CharsetStreamSupport();
@@ -359,7 +359,7 @@ public class CharsetStreamSupport {
 		res=css.decode2(bb, cb, bb.limit()==byteSize);
 
 	}
-	public static void main4(String[] args) throws IOException {
+	private static void main4(String[] args) throws IOException {
 		CharsetStreamSupport css = new CharsetStreamSupport();
 		css.initialize("UTF-8", 10);
 		byte[] utf8bytes=new String("élèves").getBytes(css.getCharset());
@@ -373,6 +373,9 @@ public class CharsetStreamSupport {
 		channel.read(bb);
 		
 	}
+	/**
+	 * @param args - args to program
+	 */
 	public static void main(String[] args) {
 		main7(args);
 	}
@@ -380,20 +383,20 @@ public class CharsetStreamSupport {
 	 * Convert array of bytes to array of hexadecimal representation of byte.​
 	 * For example, byte[-1, 4] will be converted to ​
 	 */
-	public static String[] toHex(byte[] in) {
+	private static String[] toHex(byte[] in) {
 		Byte[] ino = new Byte[in.length];
 		Arrays.setAll(ino, n -> in[n]);
 		return Stream.of(ino).map(bo -> "0x" + new String(new char[] { Character.forDigit((bo >> 4) & 0xF, 16),
 				Character.forDigit(bo & 0xF, 16) }).toUpperCase()).collect(Collectors.toList()).toArray(new String[] {});
 	}
 	
-	public static String toBinary(byte[] encoded) {
+	private static String toBinary(byte[] encoded) {
 		return IntStream.range(0, encoded.length).map(i -> encoded[i])
 				.mapToObj(e -> Integer.toBinaryString(e ^ 255)).map(e -> String.format("%1$" + Byte.SIZE + "s", e)
 				.replace(" ", "0")).collect(Collectors.joining(" "));
 	}
 	
-	public static String toString(String[] strings) {
+	private static String toString(String[] strings) {
 		return Arrays.toString(strings);
 	}
 }
