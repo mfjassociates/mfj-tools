@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.1.8.RELEASE</version>
+    <version>2.7.9</version>
   </parent>
   <groupId>net.mfjassociates.tools</groupId>
   <artifactId>mfj-tools</artifactId>
@@ -14,5 +14,6 @@
   	<module>apache-httpclient-resttemplate</module>
   	<module>java-chest</module>
   	<module>gifi</module>
+  	<module>Annotations</module>
   </modules>
 </project>
