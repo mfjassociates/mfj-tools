@@ -44,10 +44,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
+ */
+/**
  * - Supports both HTTP and HTTPS
  * - Uses a connection pool to re-use connections and save overhead of creating connections.
  * - Has a custom connection keep-alive strategy (to apply a default keep-alive if one isn't specified)
  * - Starts an idle connection monitor to continuously clean up stale connections.
+ * 
+ * @author mxj037
+ *
  */
 @Configuration
 @EnableScheduling
