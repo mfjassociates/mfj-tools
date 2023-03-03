@@ -77,11 +77,19 @@ public class CharsetStreamSupport {
 	public CharBuffer decode(byte[] bytes, boolean eoi) {
 		return decode(ByteBuffer.wrap(bytes), eoi);
 	}
+	/**
+	 * Will call {@link #decode2()} with a CharBuffer allocated to
+	 * approximately the right size for receiving the decoded characters.
+	 * 
+	 * @param inbb - The input byte buffer to decode
+	 * @param eoi
+	 * @return
+	 */
 	public CharBuffer decode(ByteBuffer inbb, boolean eoi) {
 		if (bbinternal.get()==null) throw new IllegalStateException("You must initialize the CharsetStreamSupport before calling decode2");
 		ByteBuffer bb = bbinternal.get();
 		bb.put(inbb);
-		bb.flip();
+		((Buffer)bb).flip();
 		CharBuffer cb=CharBuffer.allocate((int)(bb.capacity()*averageCharsPerByte()));
 		
 		result.set(decode2(bb, cb, eoi));

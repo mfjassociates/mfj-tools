@@ -6,20 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class TestUTF8StreamDecode {
 	
 	private static byte[] utf8bytes;
 	private static CharsetStreamSupport css;
-	private static CharsetDecoder csDecoder;
-	private static final Logger logger=LoggerFactory.getLogger(TestUTF8StreamDecode.class);
+	private static final Logger logger=LogManager.getLogger(TestUTF8StreamDecode.class);
 	
 	@BeforeAll
 	public static void createBuffers() {
@@ -48,11 +46,8 @@ class TestUTF8StreamDecode {
 	private void decodeTest(int size, CoderResult expected, int position, int limit, boolean eoi) {
 		CharBuffer cb=CharBuffer.allocate(size);
 		ByteBuffer bb=ByteBuffer.wrap(utf8bytes, position, limit);
-		csDecoder.reset();
 		CoderResult res = css.decode2(bb, cb, eoi);
 		logger.info("CharBuffer size={}, byte[] limit={}, ByteBuffer remaining={}", size, limit, bb.remaining());
-		csDecoder.decode(bb, cb, true);
-		csDecoder.flush(cb);
 		assertEquals(expected, res);
 	}
 

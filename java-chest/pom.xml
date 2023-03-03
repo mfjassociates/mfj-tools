@@ -11,22 +11,18 @@
   <description>List of useful java tool classes mostly in the form of helper</description>
   <dependencies>
   	<dependency>
-  		<groupId>org.junit.jupiter</groupId>
-  		<artifactId>junit-jupiter-api</artifactId>
-  		<scope>test</scope>
+  	  <groupId>org.springframework.boot</groupId>
+  	  <artifactId>spring-boot-starter-test</artifactId>
+  	  <exclusions>
+  	    <exclusion>
+  	      <groupId>org.springframework.boot</groupId>
+  	      <artifactId>spring-boot-starter-logging</artifactId>
+  	    </exclusion>
+  	  </exclusions>
   	</dependency>
   	<dependency>
-  		<groupId>org.junit.jupiter</groupId>
-  		<artifactId>junit-jupiter-engine</artifactId>
-  		<scope>test</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.slf4j</groupId>
-  		<artifactId>slf4j-api</artifactId>
-  	</dependency>
-  	<dependency>
-  		<groupId>ch.qos.logback</groupId>
-  		<artifactId>logback-classic</artifactId>
+  	  <groupId>org.springframework.boot</groupId>
+  	  <artifactId>spring-boot-starter-log4j2</artifactId>
   	</dependency>
   </dependencies>
 </project>
