@@ -82,8 +82,8 @@ public class CharsetStreamSupport {
 	 * approximately the right size for receiving the decoded characters.
 	 * 
 	 * @param inbb - The input byte buffer to decode
-	 * @param eoi
-	 * @return
+	 * @param eoi - end of input processing
+	 * @return - the decoded character buffer
 	 */
 	public CharBuffer decode(ByteBuffer inbb, boolean eoi) {
 		if (bbinternal.get()==null) throw new IllegalStateException("You must initialize the CharsetStreamSupport before calling decode2");
@@ -145,12 +145,6 @@ public class CharsetStreamSupport {
 			System.out.println("decoded="+cb.toString());
 			
 		}
-	/**
-	 * main3
-	 * @param args
-	 * @throws UnsupportedEncodingException
-	 * @throws CharacterCodingException
-	 */
 	public static void main3(String[] args) throws UnsupportedEncodingException, CharacterCodingException {
 		byte[] a=new byte[] {(byte) 0x80,(byte) 0x31,(byte) 0x80,(byte) 0x32,(byte) 0x80,(byte) 0x33};
 		String ts="€1€2€3";
@@ -183,8 +177,6 @@ public class CharsetStreamSupport {
 	 * This is from this stackoverflow:
 	 * https://stackoverflow.com/a/29560129
 	 * This shows how to call decode with false as end of input argument
-	 * @param args
-	 * @throws IOException 
 	 */
 	public static void main2(String[] args) throws IOException {
 		final String pound="€1€2€3";
@@ -301,7 +293,6 @@ public class CharsetStreamSupport {
 	 * <p>
 	 * Step 1 has eoi false, step 2 has eoi true.
 	 * 
-	 * @param args
 	 */
 	public static void main1(String[] args) {
 		int limit;
@@ -388,8 +379,6 @@ public class CharsetStreamSupport {
 	/**​
 	 * Convert array of bytes to array of hexadecimal representation of byte.​
 	 * For example, byte[-1, 4] will be converted to ​
-	 * @param in​
-	 * @return​
 	 */
 	public static String[] toHex(byte[] in) {
 		Byte[] ino = new Byte[in.length];
