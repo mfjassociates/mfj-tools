@@ -2,7 +2,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.mfjassociates.pdf</groupId>
   <artifactId>gifi</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
   <dependencies>
   	<dependency>
   		<groupId>com.itextpdf</groupId>
@@ -38,4 +37,9 @@
   	<maven.compiler.source>1.8</maven.compiler.source>
   	<maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+  <parent>
+    <groupId>net.mfjassociates.tools</groupId>
+    <artifactId>mfj-tools</artifactId>
+    <version>${revision}.${sha1}${changelist}</version>
+  </parent>
 </project>
