@@ -3,3 +3,4 @@
 **/.classpath
 **/META-INF/maven/
 **/target/
+**/.flattened-pom.xml
