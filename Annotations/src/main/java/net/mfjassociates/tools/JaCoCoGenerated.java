@@ -33,11 +33,11 @@ public class JaCoCoGenerated {
 	}
 
 	/**
-	 * This will add to the codeModel associated with the passed generatableType an interface in the same
-	 * package suitable for JaCoCo use  (i.e. retention policy of runtime)
+	 * This will add to the codeModel associated with the passed generatableType a "generated" annotation interface
+	 * in the same package suitable for JaCoCo use  (i.e. retention policy of runtime)
 	 * 
-	 * @param generatableType
-	 * @return
+	 * @param generatableType - the package for the annotation interface to create
+	 * @return - the generated annotation interface
 	 */
 	protected static JDefinedClass createCustomPackageRuntimeGeneratedAnnotation(JPackage generatableType) {
 		JDefinedClass jacocoGenerated=null;

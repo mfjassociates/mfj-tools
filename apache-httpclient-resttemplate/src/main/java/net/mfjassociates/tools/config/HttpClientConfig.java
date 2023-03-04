@@ -176,9 +176,9 @@ public class HttpClientConfig {
 
     /**
      * You need to have a property proxyAuthenticationMode set to the value of the enumeration as the default for this application
-     * @param args
-     * @param aMode
-     * @return
+     * @param args - the arguments passed to the command line
+     * @param aMode - the injected proxy authentication mode
+     * @return - the authentication mode
      */
 	@Bean
 	@DependsOn("applrunner")
