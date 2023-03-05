@@ -39,7 +39,7 @@ public class JaCoCoGenerated {
 	 * @param generatableType - the package for the annotation interface to create
 	 * @return - the generated annotation interface
 	 */
-	protected static JDefinedClass createCustomPackageRuntimeGeneratedAnnotation(JPackage generatableType) {
+	public static JDefinedClass createCustomPackageRuntimeGeneratedAnnotation(JPackage generatableType) {
 		JDefinedClass jacocoGenerated=null;
 		try {
 			jacocoGenerated=generatableType._annotationTypeDeclaration(JACOCO_GENERATED_CLASS_NAME);
