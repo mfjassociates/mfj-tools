@@ -43,20 +43,20 @@ public class JaCoCoGenerated {
 		JDefinedClass jacocoGenerated=null;
 		try {
 			jacocoGenerated=generatableType._annotationTypeDeclaration(JACOCO_GENERATED_CLASS_NAME);
+			// add the Documented annotation
+			jacocoGenerated.annotate(Documented.class);
+			// add the Retention annotation with retention policy of runtime
+			JAnnotationUse use = jacocoGenerated.annotate(Retention.class);
+			use.param("value", RetentionPolicy.RUNTIME);
+			// add the Target annotation with the element types: type, method and constructor
+			use=jacocoGenerated.annotate(Target.class);
+			JAnnotationArrayMember useArray = use.paramArray("value");
+			useArray.param(ElementType.TYPE);
+			useArray.param(ElementType.METHOD);
+			useArray.param(ElementType.CONSTRUCTOR);
 		} catch (JClassAlreadyExistsException e) {
 			jacocoGenerated=e.getExistingClass();
 		}
-		// add the Documented annotation
-		jacocoGenerated.annotate(Documented.class);
-		// add the Retention annotation with retention policy of runtime
-		JAnnotationUse use = jacocoGenerated.annotate(Retention.class);
-		use.param("value", RetentionPolicy.RUNTIME);
-		// add the Target annotation with the element types: type, method and constructor
-		use=jacocoGenerated.annotate(Target.class);
-		JAnnotationArrayMember useArray = use.paramArray("value");
-		useArray.param(ElementType.TYPE);
-		useArray.param(ElementType.METHOD);
-		useArray.param(ElementType.CONSTRUCTOR);
 		return jacocoGenerated;
 	}
 

@@ -6,15 +6,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.StringWriter;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Collection;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sun.codemodel.JAnnotationUse;
-import com.sun.codemodel.JAnnotationValue;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JFormatter;
@@ -22,7 +19,8 @@ import com.sun.codemodel.JFormatter;
 public class JaCoCoGeneratedTest {
 	
 	private JCodeModel codeModel;
-	private String generatedPackage="test.jacoco";
+	private static final String generatedPackage="test.jacoco";
+	private static final String FULLY_QUALIFIED_CLASS_NAME=generatedPackage+"."+JACOCO_GENERATED_CLASS_NAME;
 	
 	@BeforeEach
 	public void setup() {
@@ -30,13 +28,21 @@ public class JaCoCoGeneratedTest {
 	}
 	
 	@Test
+	public void testMultipleInvocations() {
+		createCustomPackageRuntimeGeneratedAnnotation(codeModel._package(generatedPackage));
+		createCustomPackageRuntimeGeneratedAnnotation(codeModel._package(generatedPackage));
+		JDefinedClass clazz = codeModel._getClass(FULLY_QUALIFIED_CLASS_NAME);
+		Collection<JAnnotationUse> annotations = clazz.annotations();
+		assertThat(annotations.size()).isEqualTo(3);
+	}
+	@Test
 	public void testCreateCustomPackageRuntimeGeneratedAnnotation() {
 		
 		createCustomPackageRuntimeGeneratedAnnotation(codeModel._package(generatedPackage));
-		String fullyQualifiedClassName=generatedPackage+"."+JACOCO_GENERATED_CLASS_NAME;
-		JDefinedClass clazz = codeModel._getClass(fullyQualifiedClassName);
+		JDefinedClass clazz = codeModel._getClass(FULLY_QUALIFIED_CLASS_NAME);
 		assertThat(clazz).isNotNull().returns(true, JDefinedClass::isAnnotationTypeDeclaration);
 		Collection<JAnnotationUse> annotations = clazz.annotations();
+		assertThat(annotations.size()).isEqualTo(3);
 		assertThat(annotations).anySatisfy(ja -> { // JAnnotationUse
 			assertThat(ja.getAnnotationClass().name()).isEqualTo("Retention");
 			assertThat(ja.getAnnotationMembers()).isNotNull();
@@ -61,19 +67,6 @@ public class JaCoCoGeneratedTest {
 				assertThat(ja.getAnnotationMembers()).isNull();
 			}, "Documented annotation had annotation members and should not have any"); 
 		});
-//		.anySatisfy(ja -> {
-//			assertThat(ja.getAnnotationClass().name()).isEqualTo("Retention");
-//			assertThat(ja.getAnnotationMembers()).extracting(mv -> mv.get("value")).isEqualTo(RetentionPolicy.RUNTIME);
-//		});
-//		assertThat(annotations).anySatisfy(ja -> {
-//			assertThat(ja.getAnnotationClass().name()).isEqualTo("Documented");
-//			assertThat(ja.getAnnotationMembers()).isNull();
-//		});
-//		assertThat(annotations).extracting(JAnnotationUse::getAnnotationClass).contains((JClass)null);
-//		assertThat(annotations).anySatisfy(ja -> {
-//			assertThat(ja.getAnnotationClass().name()).isEqualTo("Documented");
-//			//.extracting("value","aa").containsExactly(JExpr.lit("adsaf"));
-//		});
 	}
 
 }
