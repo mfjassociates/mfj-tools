@@ -14,7 +14,8 @@
   	<module>apache-httpclient-resttemplate</module>
   	<module>java-chest</module>
   	<module>gifi</module>
-  	<module>Annotations</module>
+	<module>Annotations</module>
+  	<module>test-caldav</module>
   </modules>
   <properties>
     <revision>2.0</revision>
