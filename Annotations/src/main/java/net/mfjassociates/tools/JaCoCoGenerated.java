@@ -47,7 +47,7 @@ public class JaCoCoGenerated {
 			jacocoGenerated.annotate(Documented.class);
 			// add the Retention annotation with retention policy of runtime
 			JAnnotationUse use = jacocoGenerated.annotate(Retention.class);
-			use.param("value", RetentionPolicy.RUNTIME);
+			use.param("value", RetentionPolicy.CLASS);
 			// add the Target annotation with the element types: type, method and constructor
 			use=jacocoGenerated.annotate(Target.class);
 			JAnnotationArrayMember useArray = use.paramArray("value");

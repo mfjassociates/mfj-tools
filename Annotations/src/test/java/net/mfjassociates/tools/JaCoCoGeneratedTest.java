@@ -49,7 +49,7 @@ public class JaCoCoGeneratedTest {
 			final StringWriter w=new StringWriter();
 			final JFormatter jf=new JFormatter(w);
 			ja.generate(jf);
-			assertThat(w.getBuffer().toString()).contains("RetentionPolicy.RUNTIME");
+			assertThat(w.getBuffer().toString()).contains("RetentionPolicy.CLASS");
 		});
 		assertThat(annotations).anySatisfy(ja -> { // JAnnotationUse
 			assertThat(ja.getAnnotationClass().name()).isEqualTo("Target");
